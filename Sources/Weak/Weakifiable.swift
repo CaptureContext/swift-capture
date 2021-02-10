@@ -154,3 +154,9 @@ extension Weakifiable {
         in closure: @escaping (Self, T0, T1, T2, T3, T4, T5, T6, T7) -> Value?
     ) -> ((T0, T1, T2, T3, T4, T5, T6, T7) -> Value?) { Weak(self).capture(in: closure) }
 }
+
+extension Weakifiable {
+    public func capture(in closure: @escaping (Self) -> (() -> Void)) -> (() -> Void) {
+        Weak(self).capture(in: closure)
+    }
+}

@@ -360,3 +360,14 @@ extension Weak {
         }
     }
 }
+
+extension Weak {
+    public func capture(
+        in closure: @escaping (Object) -> (() -> Void)
+    ) -> (() -> Void) {
+        return { [weak wrappedValue] in
+            guard let object = wrappedValue else { return }
+            return closure(object)()
+        }
+    }
+}

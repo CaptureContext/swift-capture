@@ -131,4 +131,44 @@ final class WeakTests: XCTestCase {
         XCTAssertEqual(closure(), 1)
         XCTAssertEqual(numberOfCalls, 1)
     }
+    
+    func testPassingMethods() {
+        class LocalObject: Object {
+            private(set) var didSomething: Bool = false
+            
+            func doSomething() {
+                didSomething = true
+            }
+            
+            func undoSomething() {
+                didSomething = false
+            }
+        }
+        
+        var isObjectDeinitialized = false
+        
+        var object: LocalObject? = LocalObject(onDeinit: {
+            isObjectDeinitialized = true
+        })
+        
+        let closure1: () -> Void = object!.capture(in: LocalObject.doSomething)
+        let closure2: () -> Void = object!.capture(in: LocalObject.undoSomething)
+        let closure3: () -> Bool = object!.capture(or: false, in: \.didSomething)
+        
+        XCTAssertEqual(object?.didSomething, false)
+        XCTAssertEqual(closure3(), false)
+        closure1()
+        XCTAssertEqual(object?.didSomething, true)
+        XCTAssertEqual(closure3(), true)
+        
+        XCTAssert(!isObjectDeinitialized)
+        object = nil
+        XCTAssert(isObjectDeinitialized)
+        
+        XCTAssertEqual(object?.didSomething, nil)
+        XCTAssertEqual(closure3(), false)
+        closure2()
+        XCTAssertEqual(object?.didSomething, nil)
+        XCTAssertEqual(closure3(), false)
+    }
 }
