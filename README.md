@@ -19,7 +19,7 @@ With Weak
 Default
 ```swift
 { [weak self] in 
-	  guard let self = self else { return }
+    guard let self = self else { return }
     /// ...
 }
 ```
@@ -35,7 +35,7 @@ capture { _self in
 Multiple parameters
 ```swift
 { [weak self] a, b, c in 
-	  guard let self = self else { return }
+    guard let self = self else { return }
     /// ...
 }
 ```
@@ -52,7 +52,7 @@ Methods
 
 ```swift
 { [weak self] in 
-	  guard let self = self else { return }
+    guard let self = self else { return }
     self.someMethod()
 }
 ```
@@ -67,7 +67,7 @@ Return values
 
 ```swift
 let object.dataSource = { [weak self] in
-	  guard let self = self else { return [] }
+    guard let self = self else { return [] }
     return self.data
 }
 ```
