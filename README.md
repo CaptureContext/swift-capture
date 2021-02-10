@@ -97,7 +97,7 @@ If you use SwiftPM for your project, you can add DeclarativeConfiguration to you
 or
 
 ```swift
-.package(url: "git@github.com:makeupstudio/swift-declarative-configuration.git", .exact("1.0.0"))
+.package(url: "git@github.com:maximkrouk/weak.git", .exact("1.0.0"))
 ```
 
 Do not forget about target dependencies:
