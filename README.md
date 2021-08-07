@@ -7,11 +7,11 @@ A mechanism for safe capturing & weakifying objects in Swift.
 ## Usage Examples
 
 ```swift
-Without Weak
+Without weak
 ```
 
 ```swift
-With Weak
+With weak
 ```
 
 ----
@@ -19,14 +19,14 @@ With Weak
 Default
 ```swift
 { [weak self] in 
-    guard let self = self else { return }
-    /// ...
+  guard let self = self else { return }
+  /// ...
 }
 ```
 
 ```swift
 capture { _self in
-    /// ...
+  /// ...
 }
 ```
 
@@ -35,14 +35,14 @@ capture { _self in
 Multiple parameters
 ```swift
 { [weak self] a, b, c in 
-    guard let self = self else { return }
-    /// ...
+  guard let self = self else { return }
+  /// ...
 }
 ```
 
 ```swift
 capture { _self, a, b, c in 
-    /// ...
+  /// ...
 }
 ```
 
@@ -52,8 +52,8 @@ Methods
 
 ```swift
 { [weak self] in 
-    guard let self = self else { return }
-    self.someMethod()
+  guard let self = self else { return }
+  self.someMethod()
 }
 ```
 
@@ -67,8 +67,8 @@ Return values
 
 ```swift
 let object.dataSource = { [weak self] in
-    guard let self = self else { return [] }
-    return self.data
+  guard let self = self else { return [] }
+  return self.data
 }
 ```
 
@@ -80,24 +80,22 @@ let object.dataSource = capture(or: [], in: \.data)
 
 ### Basic
 
-You can add DeclarativeConfiguration to an Xcode project by adding it as a package dependency.
+You can add `weak` to an Xcode project by adding it as a package dependency.
 
 1. From the **File** menu, select **Swift Packages › Add Package Dependency…**
-2. Enter [`"https://github.com/maximkrouk/weak"`](https://github.com/maximkrouk/weak) into the package repository URL text field
+2. Enter [`"https://github.com/makeupstdio/weak"`](https://github.com/makeupstdio/weak) into the package repository URL text field
 3. Choose products you need to link them to your project.
 
 ### Recommended
 
-If you use SwiftPM for your project, you can add DeclarativeConfiguration to your package file. Also my advice is to use SSH.
+If you use SwiftPM for your project, you can add `weak` to your package file. Also my advice is to use SSH.
 
 ```swift
-.package(url: "git@github.com:maximkrouk/weak.git", .branch("main"))
-```
-
-or
-
-```swift
-.package(url: "git@github.com:maximkrouk/weak.git", .exact("1.0.0"))
+.package(
+  name: "weak",
+  url: "git@github.com:makeupstudio/weak.git",
+  .branch("main")
+)
 ```
 
 Do not forget about target dependencies:
@@ -105,7 +103,7 @@ Do not forget about target dependencies:
 ```swift
 .product(
     name: "Weak", 
-    package: "Weak"
+    package: "weak"
 )
 ```
 
