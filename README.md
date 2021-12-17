@@ -1,4 +1,4 @@
-# Weak
+# swift-capture
 
 [![SwiftPM 5.3](https://img.shields.io/badge/📦_spm-5.3-ED523F.svg?style=flat)](https://swift.org/download/) [![@maximkrouk](https://img.shields.io/badge/contact-@maximkrouk-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/maximkrouk)
 
@@ -58,7 +58,7 @@ Methods
 ```
 
 ```swift
-capture(in: Self.someMethod)
+capture(Self.someMethod)
 ```
 
 ----
@@ -83,7 +83,7 @@ let object.dataSource = capture(or: [], in: \.data)
 You can add `weak` to an Xcode project by adding it as a package dependency.
 
 1. From the **File** menu, select **Swift Packages › Add Package Dependency…**
-2. Enter [`"https://github.com/makeupstdio/weak"`](https://github.com/makeupstdio/weak) into the package repository URL text field
+2. Enter [`"https://github.com/capturecontext/swift-capture"`](https://github.com/capturecontext/swift-capture) into the package repository URL text field
 3. Choose products you need to link them to your project.
 
 ### Recommended
@@ -93,8 +93,8 @@ If you use SwiftPM for your project, you can add `weak` to your package file. Al
 ```swift
 .package(
   name: "weak",
-  url: "git@github.com:makeupstudio/weak.git",
-  .branch("main")
+  url: "git@github.com:capturecontext/swift-capture.git",
+  .upToNextMajor("2.0.0")
 )
 ```
 
@@ -102,8 +102,9 @@ Do not forget about target dependencies:
 
 ```swift
 .product(
-    name: "Weak", 
-    package: "weak"
+    name: "swift-capture",
+    name: "Capture", 
+    package: "swift-capture"
 )
 ```
 

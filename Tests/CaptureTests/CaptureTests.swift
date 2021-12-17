@@ -1,5 +1,5 @@
 import XCTest
-@testable import Weak
+@testable import Capture
 
 final class WeakTests: XCTestCase {
     class Object: Weakifiable {
@@ -151,8 +151,8 @@ final class WeakTests: XCTestCase {
             isObjectDeinitialized = true
         })
         
-        let closure1: () -> Void = object!.capture(in: LocalObject.doSomething)
-        let closure2: () -> Void = object!.capture(in: LocalObject.undoSomething)
+        let closure1: () -> Void = object!.capture(LocalObject.doSomething)
+        let closure2: () -> Void = object!.capture(LocalObject.undoSomething)
         let closure3: () -> Bool = object!.capture(or: false, in: \.didSomething)
         
         XCTAssertEqual(object?.didSomething, false)

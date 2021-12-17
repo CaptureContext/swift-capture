@@ -156,7 +156,17 @@ extension Weakifiable {
 }
 
 extension Weakifiable {
-  public func capture(in closure: @escaping (Self) -> (() -> Void)) -> (() -> Void) {
-    Weak(self).capture(in: closure)
+  public func capture(
+    _ closure: @escaping (Self) -> (() -> Void)
+  ) -> (() -> Void) {
+    Weak(self).capture(closure)
+  }
+}
+
+extension Weakifiable {
+  public func captureAssign<Value>(
+    to keyPath: ReferenceWritableKeyPath<Self, Value>
+  ) -> (Value) -> Void {
+    Weak(self).capture { $0[keyPath: keyPath] = $1 }
   }
 }

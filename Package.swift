@@ -3,19 +3,19 @@
 import PackageDescription
 
 let package = Package(
-  name: "weak",
+  name: "swift-capture",
   products: [
     .library(
-      name: "Weak",
-      targets: ["Weak"]
+      name: "Capture",
+      targets: ["Capture"]
     )
   ],
   targets: [
-    .target(name: "Weak"),
+    .target(name: "Capture"),
     .testTarget(
-      name: "WeakTests",
+      name: "CaptureTests",
       dependencies: [
-        .target(name: "Weak")
+        .target(name: "Capture")
       ]
     ),
   ]
