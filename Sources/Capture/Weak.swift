@@ -371,3 +371,23 @@ extension Weak {
     }
   }
 }
+
+extension Weak {
+  public func captureAssign<Value>(
+    to keyPath: ReferenceWritableKeyPath<Object, Value>
+  ) -> (Value) -> Void {
+    capture { $0[keyPath: keyPath] = $1 }
+  }
+  
+  public func captureAssign<Value: Equatable>(
+    to keyPath: ReferenceWritableKeyPath<Object, Value>,
+    removeDuplicates isDuplicate: @escaping (Value, Value) -> Bool
+  ) -> (Value) -> Void {
+    capture { _self, newValue in
+      let currentValue = _self[keyPath: keyPath]
+      if !isDuplicate(currentValue, newValue) {
+        _self[keyPath: keyPath] = newValue
+      }
+    }
+  }
+}

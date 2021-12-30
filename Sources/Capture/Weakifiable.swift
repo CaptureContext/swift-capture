@@ -167,6 +167,13 @@ extension Weakifiable {
   public func captureAssign<Value>(
     to keyPath: ReferenceWritableKeyPath<Self, Value>
   ) -> (Value) -> Void {
-    Weak(self).capture { $0[keyPath: keyPath] = $1 }
+    Weak(self).captureAssign(to: keyPath)
+  }
+  
+  public func captureAssign<Value: Equatable>(
+    to keyPath: ReferenceWritableKeyPath<Self, Value>,
+    removeDuplicates isDuplicate: @escaping (Value, Value) -> Bool
+  ) -> (Value) -> Void {
+    Weak(self).captureAssign(to: keyPath, removeDuplicates: isDuplicate)
   }
 }
