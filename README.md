@@ -1,17 +1,17 @@
 # swift-capture
 
-[![SwiftPM 5.3](https://img.shields.io/badge/📦_spm-5.3-ED523F.svg?style=flat)](https://swift.org/download/) [![@maximkrouk](https://img.shields.io/badge/contact-@maximkrouk-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/maximkrouk)
+[![SwiftPM 5.3](https://img.shields.io/badge/📦_swiftpm-5.3-ED523F.svg?style=flat)](https://swift.org/download/) [![@maximkrouk](https://img.shields.io/badge/contact-@capturecontext-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context)
 
 A mechanism for safe capturing & weakifying objects in Swift.
 
 ## Usage Examples
 
 ```swift
-Without weak
+Without Capture
 ```
 
 ```swift
-With weak
+With Capture
 ```
 
 ----
@@ -74,6 +74,21 @@ let object.dataSource = { [weak self] in
 
 ```swift
 let object.dataSource = capture(or: [], in: \.data)
+```
+
+----
+
+Weak assign
+
+```swift
+{ [weak self] value in 
+	self?.value = value
+}
+```
+
+```swift
+captureAssign(to: \.value)
+captureAssign(to: \.value, removeDuplicates: ==)
 ```
 
 ## Installation
