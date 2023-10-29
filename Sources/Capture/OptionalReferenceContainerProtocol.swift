@@ -1,17 +1,16 @@
 import Foundation
 
-/// Provides a bunch of methods for weakly capturing objects
-///
-/// Uses ``Weak`` capturing under the hood
-public protocol Weakifiable: AnyObject {}
-
-extension NSObject: Weakifiable {}
+/// Protocol to generalize Weak and Weak.Box APIs
+public protocol OptionalReferenceContainerProtocol {
+  associatedtype Object: AnyObject
+  var object: Object? { get }
+}
 
 // MARK: - Void result closures
 
-extension Weakifiable {
+extension OptionalReferenceContainerProtocol {
   /// Weakly captures an object in non-parametrized void result closure.
-  /// 
+  ///
   /// Creates `() -> Void` handler from `(Object) -> Void` closure
   /// so you can access weakly captured Object in your handler if the object is present.
   ///
@@ -36,9 +35,12 @@ extension Weakifiable {
   /// - Returns: `() -> Void` handler, created from `(Object) -> Void` closure by weakly capturing object.
   @inlinable
   public func capture(
-    in closure: @escaping (Self) -> Void
+    in closure: @escaping (Object) -> Void
   ) -> () -> Void {
-    return Weak(self).capture(in: closure)
+    return { [weak object] in
+      guard let object else { return }
+      closure(object)
+    }
   }
 
   /// Weakly captures an object in non-parametrized lazy void result closure.
@@ -66,9 +68,12 @@ extension Weakifiable {
   /// - Returns: `() -> Void` handler, created from `(Object) -> () -> Void` closure by weakly capturing object
   @inlinable
   public func capture(
-    in closure: @escaping (Self) -> () -> Void
+    in closure: @escaping (Object) -> () -> Void
   ) -> () -> Void {
-    return Weak(self).capture(in: closure)
+    return { [weak object] in
+      guard let object else { return }
+      closure(object)()
+    }
   }
 
   /// Weakly captures an object in parametrized void result closure.
@@ -99,15 +104,18 @@ extension Weakifiable {
   /// - Parameter closure: `(Object, A, B, C...) -> Void`, where Object is unwrapped weakly captured object.
   /// - Returns: `(A, B, C...) -> Void` handler, created from `(Object, A, B, C) -> Void` closure by weakly capturing object.
   public func capture<each Arg>(
-    in closure: @escaping (Self, repeat each Arg) -> Void
+    in closure: @escaping (Object, repeat each Arg) -> Void
   ) -> (repeat each Arg) -> Void {
-    return Weak(self).capture(in: closure)
+    return { [weak object] (arg: repeat each Arg) in
+      guard let object else { return }
+      closure(object, repeat each arg)
+    }
   }
 }
 
 // MARK: - Non-void result closures
 
-extension Weakifiable {
+extension OptionalReferenceContainerProtocol {
   /// Weakly captures an object in non-parametrized non-void result closure.
   ///
   /// Creates `() -> Output` handler from `(Object) -> Output` closure.
@@ -139,9 +147,12 @@ extension Weakifiable {
   @inlinable
   public func capture<Output>(
     orReturn defaultValue: @escaping @autoclosure () -> Output,
-    in closure: @escaping (Self) -> Output
+    in closure: @escaping (Object) -> Output
   ) -> () -> Output {
-    return Weak(self).capture(orReturn: defaultValue(), in: closure)
+    return { [weak object] in
+      guard let object else { return defaultValue() }
+      return closure(object)
+    }
   }
 
   /// Weakly captures an object in non-parametrized lazy non-void result closure.
@@ -167,9 +178,12 @@ extension Weakifiable {
   @inlinable
   public func capture<Output>(
     orReturn defaultValue: @escaping @autoclosure () -> Output,
-    in closure: @escaping (Self) -> () -> Output
+    in closure: @escaping (Object) -> () -> Output
   ) -> () -> Output {
-    return Weak(self).capture(orReturn: defaultValue(), in: closure)
+    return { [weak object] in
+      guard let object else { return defaultValue() }
+      return closure(object)()
+    }
   }
 
   /// Weakly captures an object in parametrized non-void result closure.
@@ -197,15 +211,18 @@ extension Weakifiable {
   /// - Returns: `(A, B, C...) -> Output` handler, created from `(Object, A, B, C) -> Output` closure by weakly capturing object.
   public func capture<each Arg, Output>(
     orReturn defaultValue: @escaping @autoclosure () -> Output,
-    in closure: @escaping (Self, repeat each Arg) -> Output
+    in closure: @escaping (Object, repeat each Arg) -> Output
   ) -> (repeat each Arg) -> Output {
-    return Weak(self).capture(orReturn: defaultValue(), in: closure)
+    return { [weak object] (arg: repeat each Arg) in
+      guard let object else { return defaultValue() }
+      return closure(object, repeat each arg)
+    }
   }
 }
 
 // MARK: - Non-void optional result closures
 
-extension Weakifiable {
+extension OptionalReferenceContainerProtocol {
   /// Weakly captures an object in non-parametrized non-void optional resilt closure.
   ///
   /// Creates `() -> Output?` handler from `(Object) -> Output?` closure.
@@ -232,9 +249,12 @@ extension Weakifiable {
   /// - Returns: `() -> Output?` handler, created from `(Object) -> Output?` closure by weakly capturing object. Handler will return nil if object was already deinitialized.
   @inlinable
   public func capture<Output>(
-    in closure: @escaping (Self) -> Output?
+    in closure: @escaping (Object) -> Output?
   ) -> () -> Output? {
-    return Weak(self).capture(in: closure)
+    return { [weak object] in
+      guard let object else { return nil }
+      return closure(object)
+    }
   }
 
   /// Weakly captures an object in non-parametrized lazy non-void optional result closure.
@@ -261,9 +281,12 @@ extension Weakifiable {
   /// - Returns: `() -> Output?` handler, created from `(Object) -> () -> Output?` closure by weakly capturing object.
   @inlinable
   public func capture<Output>(
-    in closure: @escaping (Self) -> () -> Output?
+    in closure: @escaping (Object) -> () -> Output?
   ) -> () -> Output? {
-    return Weak(self).capture(in: closure)
+    return { [weak object] in
+      guard let object else { return nil }
+      return closure(object)()
+    }
   }
 
   /// Weakly captures an object in parametrized non-void optional result closure.
@@ -292,8 +315,11 @@ extension Weakifiable {
   /// - Parameter closure: `(Object, A, B, C...) -> Void`, where Object is unwrapped weakly captured object.
   /// - Returns: `(A, B, C...) -> Output?` handler, created from `(Object, A, B, C) -> Output?` closure by weakly capturing object.
   public func capture<each Arg, Output>(
-    in closure: @escaping (Self, repeat each Arg) -> Output?
+    in closure: @escaping (Object, repeat each Arg) -> Output?
   ) -> (repeat each Arg) -> Output? {
-    return Weak(self).capture(in: closure)
+    return { [weak object] (arg: repeat each Arg) in
+      guard let object else { return nil }
+      return closure(object, repeat each arg)
+    }
   }
 }

@@ -1,8 +1,8 @@
 # swift-capture
 
-[![SwiftPM 5.3](https://img.shields.io/badge/📦_swiftpm-5.3-ED523F.svg?style=flat)](https://swift.org/download/) [![@maximkrouk](https://img.shields.io/badge/contact-@capturecontext-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context)
+[![Test](https://github.com/capturecontext/swift-capture/actions/workflows/Test.yml/badge.svg) [![SwiftPM 5.9](https://img.shields.io/badge/📦_swiftpm-5.9-ED523F.svg?style=flat)](https://github.com/CaptureContext/swift-declarative-configuration/actions/workflows/Test.yml) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat) [![@capture_context](https://img.shields.io/badge/contact-@capture__context-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context) 
 
-A mechanism for safe capturing & weakifying objects in Swift.
+A mechanism for ergonomic and safe capturing & weakifying objects in Swift.
 
 ## Usage Examples
 
@@ -19,7 +19,7 @@ With Capture
 Default
 ```swift
 { [weak self] in 
-  guard let self = self else { return }
+  guard let self else { return }
   /// ...
 }
 ```
@@ -35,7 +35,7 @@ capture { _self in
 Multiple parameters
 ```swift
 { [weak self] a, b, c in 
-  guard let self = self else { return }
+  guard let self else { return }
   /// ...
 }
 ```
@@ -58,7 +58,7 @@ Methods
 ```
 
 ```swift
-capture(Self.someMethod)
+capture(in: <#Type#>.someMethod)
 ```
 
 ----
@@ -73,29 +73,14 @@ let object.dataSource = { [weak self] in
 ```
 
 ```swift
-let object.dataSource = capture(or: [], in: \.data)
-```
-
-----
-
-Weak assign
-
-```swift
-{ [weak self] value in 
-	self?.value = value
-}
-```
-
-```swift
-captureAssign(to: \.value)
-captureAssign(to: \.value, removeDuplicates: ==)
+let object.dataSource = capture(orReturn: [], in: \.data)
 ```
 
 ## Installation
 
 ### Basic
 
-You can add `weak` to an Xcode project by adding it as a package dependency.
+You can add `swift-capture` to an Xcode project by adding it as a package dependency.
 
 1. From the **File** menu, select **Swift Packages › Add Package Dependency…**
 2. Enter [`"https://github.com/capturecontext/swift-capture"`](https://github.com/capturecontext/swift-capture) into the package repository URL text field
@@ -107,9 +92,8 @@ If you use SwiftPM for your project, you can add `weak` to your package file. Al
 
 ```swift
 .package(
-  name: "weak",
   url: "git@github.com:capturecontext/swift-capture.git",
-  .upToNextMajor("2.0.0")
+  .upToNextMajor("3.0.0")
 )
 ```
 
@@ -117,7 +101,6 @@ Do not forget about target dependencies:
 
 ```swift
 .product(
-    name: "swift-capture",
     name: "Capture", 
     package: "swift-capture"
 )

@@ -1,393 +1,128 @@
 import Foundation
 
+/// Value-type container for capturing objects weakly
+///
+/// We believe that most APIs should not be too opinionated and this package provides
+/// various ways to capture objects, so feel free to use it as property wrapper or plain property/variable.
+///
+/// However opinionated approach removes cognitive load while working with APIs, so we do also provide recomendations.
+///
+/// It's recommended to conform your objects to ``Weakifiable`` protocol instead of using this type if possible
+/// or use `_capture(...)` methods directly if not.
+///
+/// But there is a recommended usecase: workarounds for poorly designed APIs with ``capture(_:)-swift.type.method`` 😅
 @propertyWrapper
-public struct Weak<Object: AnyObject> {
+public struct Weak<Object: AnyObject>: OptionalReferenceContainerProtocol {
+
+  /// Weak reference to an object
   public weak var wrappedValue: Object?
-  
-  public var projectedValue: Object? {
+
+  /// Convenience property to access wrappedValue with better semantics when used inline
+  @inlinable
+  public var object: Object? {
     get { wrappedValue }
     set { wrappedValue = newValue }
   }
-  
-  public init(_ object: Object?) {
-    self.init(wrappedValue: object)
+
+  /// Creates a reference-type box with a weak reference the object
+  @inlinable
+  public var projectedValue: Box {
+    return .init(wrappedValue)
   }
-  
+
+  /// Convenience property to access projectedValue with better semantics when used inline
+  @inlinable
+  public var box: Box {
+    return projectedValue
+  }
+
   public init() {}
   
   public init(wrappedValue: Object?) {
     self.wrappedValue = wrappedValue
   }
-}
 
-extension Weak {
-  public func capture(
-    in closure: @escaping (Object) -> Void
-  ) -> (() -> Void) {
-    return { [weak wrappedValue] in
-      guard let object = wrappedValue else { return }
-      closure(object)
-    }
+  @inlinable
+  public init(_ object: Object?) {
+    self.init(wrappedValue: object)
   }
-  
-  public func capture<T0>(
-    in closure: @escaping (Object, T0) -> Void
-  ) -> ((T0) -> Void) {
-    return { [weak wrappedValue] params in
-      guard let object = wrappedValue else { return }
-      closure(object, params)
-    }
-  }
-  
-  public func capture<T0, T1>(
-    in closure: @escaping (Object, T0, T1) -> Void
-  ) -> ((T0, T1) -> Void) {
-    return { [weak wrappedValue] t0, t1 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1)
-    }
-  }
-  
-  public func capture<T0, T1, T2>(
-    in closure: @escaping (Object, T0, T1, T2) -> Void
-  ) -> ((T0, T1, T2) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3>(
-    in closure: @escaping (Object, T0, T1, T2, T3) -> Void
-  ) -> ((T0, T1, T2, T3) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2, t3 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2, t3)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4) -> Void
-  ) -> ((T0, T1, T2, T3, T4) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2, t3, t4)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5) -> Void
-  ) -> ((T0, T1, T2, T3, T4, T5) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2, t3, t4, t5)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6) -> Void
-  ) -> ((T0, T1, T2, T3, T4, T5, T6) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2, t3, t4, t5, t6)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, T7>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6, T7) -> Void
-  ) -> ((T0, T1, T2, T3, T4, T5, T6, T7) -> Void) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6, t7 in
-      guard let object = wrappedValue else { return }
-      closure(object, t0, t1, t2, t3, t4, t5, t6, t7)
-    }
+
+  /// Passes capturable box in a closure, box object is set to returned value after return
+  ///
+  /// Recommended usecase: workarounds for poorly designed APIs 😅
+  /// ```swift
+  /// return Weak.capture { box in
+  ///   return createFancyBottomSheet(onLinkTapped: { url in
+  ///     guard let controller = box.object else { return }
+  ///     openWebView(url, in: controller)
+  ///   })
+  /// }
+  /// ```
+  /// instead of
+  /// ```swift
+  /// var controller: UIViewController
+  /// controller = createFancyBottomSheet(onLinkTapped: { [weak controller] url in
+  ///   guard let controller else { return }
+  ///   openWebView(url, in: controller)
+  /// })
+  /// return controller
+  /// ```
+  @inlinable
+  public static func capture(
+    _ initializer: (Box) -> Object
+  ) -> Object {
+    let box = Box()
+    let object = initializer(box)
+    box.wrappedValue = object
+    return object
   }
 }
 
 extension Weak {
-  public func capture<Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object) -> Value
-  ) -> (() -> Value) {
-    return { [weak wrappedValue] in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object)
-    }
-  }
-  
-  public func capture<T0, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0) -> Value
-  ) -> ((T0) -> Value) {
-    return { [weak wrappedValue] params in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, params)
-    }
-  }
-  
-  public func capture<T0, T1, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1) -> Value
-  ) -> ((T0, T1) -> Value) {
-    return { [weak wrappedValue] t0, t1 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1)
-    }
-  }
-  
-  public func capture<T0, T1, T2, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2) -> Value
-  ) -> ((T0, T1, T2) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2, T3) -> Value
-  ) -> ((T0, T1, T2, T3) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2, t3 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2, t3)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2, T3, T4) -> Value
-  ) -> ((T0, T1, T2, T3, T4) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2, t3, t4)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2, t3, t4, t5)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5, T6) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, T7, Value>(
-    or defaultValue: @escaping @autoclosure () -> Value,
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6, T7) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5, T6, T7) -> Value) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6, t7 in
-      guard let object = wrappedValue else { return defaultValue() }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6, t7)
-    }
-  }
-}
+  /// Value-type container for capturing objects weakly
+  ///
+  /// We believe that most APIs should not be too opinionated and this package provides
+  /// various ways to capture objects, so feel free to use it as property wrapper or plain property/variable.
+  ///
+  /// However opinionated approach removes cognitive load while working with APIs, so we do also provide recomendations.
+  ///
+  /// It's recommended to conform your objects to ``Weakifiable`` protocol instead of using this type if possible
+  /// or use `_capture(...)` methods directly if not.
+  ///
+  /// But there is a recommended usecase: workarounds for poorly designed APIs with ``capture(_:)-swift.type.method`` 😅
+  @propertyWrapper
+  public final class Box: OptionalReferenceContainerProtocol {
+    /// Weak reference to an object
+    public weak var wrappedValue: Object? = nil
 
-extension Weak {
-  public func capture<Value>(
-    in closure: @escaping (Object) -> Value
-  ) -> (() -> Value?) {
-    return { [weak wrappedValue] in
-      guard let object = wrappedValue else { return nil }
-      return closure(object)
+    /// Convenience property to access wrappedValue with better semantics when used inline
+    @inlinable
+    public var object: Object? {
+      get { wrappedValue }
+      set { wrappedValue = newValue }
     }
-  }
-  
-  public func capture<T0, Value>(
-    in closure: @escaping (Object, T0) -> Value
-  ) -> ((T0) -> Value?) {
-    return { [weak wrappedValue] params in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, params)
-    }
-  }
-  
-  public func capture<T0, T1, Value>(
-    in closure: @escaping (Object, T0, T1) -> Value
-  ) -> ((T0, T1) -> Value?) {
-    return { [weak wrappedValue] t0, t1 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1)
-    }
-  }
-  
-  public func capture<T0, T1, T2, Value>(
-    in closure: @escaping (Object, T0, T1, T2) -> Value
-  ) -> ((T0, T1, T2) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3) -> Value
-  ) -> ((T0, T1, T2, T3) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4) -> Value
-  ) -> ((T0, T1, T2, T3, T4) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5, T6) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, T7, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6, T7) -> Value
-  ) -> ((T0, T1, T2, T3, T4, T5, T6, T7) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6, t7 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6, t7)
-    }
-  }
-}
 
-extension Weak {
-  public func capture<Value>(
-    in closure: @escaping (Object) -> Value?
-  ) -> (() -> Value?) {
-    return { [weak wrappedValue] in
-      guard let object = wrappedValue else { return nil }
-      return closure(object)
+    /// Creates a value-type ``Weak`` container with a weak reference the object
+    @inlinable
+    public var projectedValue: Weak {
+      return .init(wrappedValue)
     }
-  }
-  
-  public func capture<T0, Value>(
-    in closure: @escaping (Object, T0) -> Value?
-  ) -> ((T0) -> Value?) {
-    return { [weak wrappedValue] params in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, params)
-    }
-  }
-  
-  public func capture<T0, T1, Value>(
-    in closure: @escaping (Object, T0, T1) -> Value?
-  ) -> ((T0, T1) -> Value?) {
-    return { [weak wrappedValue] t0, t1 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1)
-    }
-  }
-  
-  public func capture<T0, T1, T2, Value>(
-    in closure: @escaping (Object, T0, T1, T2) -> Value?
-  ) -> ((T0, T1, T2) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3) -> Value?
-  ) -> ((T0, T1, T2, T3) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4) -> Value?
-  ) -> ((T0, T1, T2, T3, T4) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5) -> Value?
-  ) -> ((T0, T1, T2, T3, T4, T5) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6) -> Value?
-  ) -> ((T0, T1, T2, T3, T4, T5, T6) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6)
-    }
-  }
-  
-  public func capture<T0, T1, T2, T3, T4, T5, T6, T7, Value>(
-    in closure: @escaping (Object, T0, T1, T2, T3, T4, T5, T6, T7) -> Value?
-  ) -> ((T0, T1, T2, T3, T4, T5, T6, T7) -> Value?) {
-    return { [weak wrappedValue] t0, t1, t2, t3, t4, t5, t6, t7 in
-      guard let object = wrappedValue else { return nil }
-      return closure(object, t0, t1, t2, t3, t4, t5, t6, t7)
-    }
-  }
-}
 
-extension Weak {
-  public func capture(
-    _ closure: @escaping (Object) -> (() -> Void)
-  ) -> (() -> Void) {
-    return { [weak wrappedValue] in
-      guard let object = wrappedValue else { return }
-      return closure(object)()
-    }
-  }
-}
+    /// Convenience method to access ``projectedValue`` with better semantics when used inline
+    ///
+    /// - Returns: Value-type weak reference to an object
+    @inlinable
+    public func unboxed() -> Weak { projectedValue }
 
-extension Weak {
-  public func captureAssign<Value>(
-    to keyPath: ReferenceWritableKeyPath<Object, Value>
-  ) -> (Value) -> Void {
-    capture { $0[keyPath: keyPath] = $1 }
-  }
-  
-  public func captureAssign<Value: Equatable>(
-    to keyPath: ReferenceWritableKeyPath<Object, Value>,
-    removeDuplicates isDuplicate: @escaping (Value, Value) -> Bool
-  ) -> (Value) -> Void {
-    capture { _self, newValue in
-      let currentValue = _self[keyPath: keyPath]
-      if !isDuplicate(currentValue, newValue) {
-        _self[keyPath: keyPath] = newValue
-      }
+    public init() {}
+
+    public init(wrappedValue: Object?) {
+      self.wrappedValue = wrappedValue
+    }
+
+    @inlinable
+    public convenience init(_ object: Object?) {
+      self.init(wrappedValue: object)
     }
   }
 }

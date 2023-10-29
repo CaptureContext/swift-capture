@@ -22,11 +22,16 @@ final class WeakTests: XCTestCase {
       isObjectDeinitialized = true
     })
     
-    let weakObject = Weak(object)
-    
+    var weakObject = Weak(object)
+
     XCTAssert(!isObjectDeinitialized)
     object = nil
     XCTAssert(isObjectDeinitialized)
+
+    do { // mute warnings
+      weakObject = .init()
+      _ = weakObject
+    }
   }
   
   func testDeinitWithCapture() {
@@ -62,7 +67,7 @@ final class WeakTests: XCTestCase {
       isObjectDeinitialized = true
     })
     
-    let closure = object!.capture(or: 0) { object in
+    let closure = object!.capture(orReturn: 0) { object in
       numberOfCalls += 1
       return 1
     }
@@ -114,7 +119,7 @@ final class WeakTests: XCTestCase {
       isObjectDeinitialized = true
     })
     
-    let closure: () -> Int? = object!.capture(or: 1) { object in
+    let closure: () -> Int? = object!.capture(orReturn: 1) { object in
       numberOfCalls += 1
       return nil
     }
@@ -151,10 +156,10 @@ final class WeakTests: XCTestCase {
       isObjectDeinitialized = true
     })
     
-    let closure1: () -> Void = object!.capture(LocalObject.doSomething)
-    let closure2: () -> Void = object!.capture(LocalObject.undoSomething)
-    let closure3: () -> Bool = object!.capture(or: false, in: \.didSomething)
-    
+    let closure1: () -> Void = object!.capture(in: LocalObject.doSomething)
+    let closure2: () -> Void = object!.capture(in: LocalObject.undoSomething)
+    let closure3: () -> Bool = object!.capture(orReturn: false, in: \.didSomething)
+
     XCTAssertEqual(object?.didSomething, false)
     XCTAssertEqual(closure3(), false)
     closure1()
@@ -170,50 +175,5 @@ final class WeakTests: XCTestCase {
     closure2()
     XCTAssertEqual(object?.didSomething, nil)
     XCTAssertEqual(closure3(), false)
-  }
-  
-  func testAssign() {
-    class LocalObject: Object {
-      var value: Int = 0 {
-        didSet { onValueDidSet?(value) }
-      }
-      
-      var onValueDidSet: ((Int) -> Void)?
-    }
-    
-    var isObjectDeinitialized = false
-    var object: LocalObject! = LocalObject(
-      onDeinit: { isObjectDeinitialized = true }
-    )
-    
-    let assignValue = object.captureAssign(to: \.value)
-    let assignValueNoDuplicate = object.captureAssign(to: \.value, removeDuplicates: ==)
-    
-    var values: [Int] = [object.value] // 0
-    object.onValueDidSet = { value in
-      values.append(value)
-    }
-    
-    XCTAssertEqual(object.value, 0)
-    XCTAssertEqual(values, [0])
-    
-    assignValue(1)
-    XCTAssertEqual(object.value, 1)
-    XCTAssertEqual(values, [0, 1])
-    
-    assignValue(1)
-    XCTAssertEqual(object.value, 1)
-    XCTAssertEqual(values, [0, 1, 1])
-    
-    assignValueNoDuplicate(2)
-    XCTAssertEqual(object.value, 2)
-    XCTAssertEqual(values, [0, 1, 1, 2])
-    
-    assignValueNoDuplicate(2)
-    XCTAssertEqual(object.value, 2)
-    XCTAssertEqual(values, [0, 1, 1, 2])
-    
-    object = nil
-    XCTAssertEqual(isObjectDeinitialized, true)
   }
 }
