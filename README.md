@@ -1,6 +1,6 @@
 # swift-capture
 
-[![test](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml/badge.svg)](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml) [![SwiftPM 5.9](https://img.shields.io/badge/📦_swiftpm-5.9-ED523F.svg?style=flat)](https://github.com/CaptureContext/swift-declarative-configuration/actions/workflows/Test.yml) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat)
+[![test](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml/badge.svg)](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml) ![SwiftPM 5.9](https://img.shields.io/badge/📦_swiftpm-5.9_|_6.0-ED523F.svg?style=flat) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat)
 [![docs](https://img.shields.io/badge/docs-spi-ED523F.svg?style=flat)]([https://twitter.com/capture_context](https://swiftpackageindex.com/CaptureContext/swift-capture/3.0.1/documentation)) [![@capture_context](https://img.shields.io/badge/contact-@capture__context-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context) 
 
 A mechanism for ergonomic and safe capturing & weakifying objects in Swift.
@@ -47,13 +47,13 @@ capture { _self, a, b, c in
 }
 ```
 
----
+----
 
 Methods
 
 ```swift
 { [weak self] in 
-  guard let self = self else { return }
+  guard let self else { return }
   self.someMethod()
 }
 ```
@@ -67,15 +67,22 @@ capture(in: <#Type#>.someMethod)
 Return values
 
 ```swift
-let object.dataSource = { [weak self] in
-  guard let self = self else { return [] }
+object.dataSource = { [weak self] in
+  guard let self else { return [] }
   return self.data
 }
 ```
 
 ```swift
-let object.dataSource = capture(orReturn: [], in: \.data)
+object.dataSource = capture(orReturn: [], in: \.data)
 ```
+
+----
+
+Sendable closures (_beta_)
+
+>  Prefix `capture` methods with an underscore to use explicit sendable closures
+>  Tho closures should implicitly infer sendable conformance (see [Package.swift](./Package.swift#L34))
 
 ## Installation
 
@@ -89,12 +96,12 @@ You can add `swift-capture` to an Xcode project by adding it as a package depend
 
 ### Recommended
 
-If you use SwiftPM for your project, you can add `weak` to your package file. Also my advice is to use SSH.
+If you use SwiftPM for your project, you can add `capture` to your package file. Also our advice is to use SSH.
 
 ```swift
 .package(
   url: "git@github.com:capturecontext/swift-capture.git",
-  .upToNextMajor("3.0.0")
+  .upToNextMajor("4.0.0-beta")
 )
 ```
 

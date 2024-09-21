@@ -2,7 +2,7 @@ import XCTest
 @testable import Capture
 
 final class WeakTests: XCTestCase {
-  class Object: Weakifiable {
+	class Object: Weakifiable, @unchecked Sendable {
     init(onDeinit: (() -> Void)? = nil) {
       self._onDeinit = onDeinit
     }
@@ -138,7 +138,7 @@ final class WeakTests: XCTestCase {
   }
   
   func testPassingMethods() {
-    class LocalObject: Object {
+    class LocalObject: Object, @unchecked Sendable {
       private(set) var didSomething: Bool = false
       
       func doSomething() {

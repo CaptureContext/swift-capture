@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 
 import PackageDescription
 
@@ -24,14 +24,14 @@ let package = Package(
 				.target(name: "Capture")
 			]
 		),
-	]
+	],
+	swiftLanguageModes: [.v6]
 )
 
-#if compiler(>=6)
-for target in package.targets where target.type != .system && target.type != .test {
-	target.swiftSettings = target.swiftSettings ?? []
+for target in package.targets where target.type == .system || target.type == .test {
 	target.swiftSettings?.append(contentsOf: [
-		.enableUpcomingFeature("InferSendableFromCaptures")
+		.swiftLanguageMode(.v5),
+		.enableExperimentalFeature("StrictConcurrency"),
+		.enableUpcomingFeature("InferSendableFromCaptures"),
 	])
 }
-#endif
