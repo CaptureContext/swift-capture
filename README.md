@@ -1,6 +1,6 @@
 # swift-capture
 
-[![test](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml/badge.svg)](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml) ![SwiftPM 5.9](https://img.shields.io/badge/📦_swiftpm-5.9_|_6.0-ED523F.svg?style=flat) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat)
+[![test](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml/badge.svg)](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml) ![SwiftPM 6.0](https://img.shields.io/badge/📦_swiftpm-6.0-ED523F.svg?style=flat) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat)
 [![docs](https://img.shields.io/badge/docs-spi-ED523F.svg?style=flat)]([https://twitter.com/capture_context](https://swiftpackageindex.com/CaptureContext/swift-capture/3.0.1/documentation)) [![@capture_context](https://img.shields.io/badge/contact-@capture__context-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context) 
 
 A mechanism for ergonomic and safe capturing & weakifying objects in Swift.
@@ -18,6 +18,7 @@ With Capture
 ----
 
 Default
+
 ```swift
 { [weak self] in 
   guard let self else { return }
@@ -34,6 +35,7 @@ capture { _self in
 ----
 
 Multiple parameters
+
 ```swift
 { [weak self] a, b, c in 
   guard let self else { return }
@@ -45,21 +47,6 @@ Multiple parameters
 capture { _self, a, b, c in 
   /// ...
 }
-```
-
-----
-
-Methods
-
-```swift
-{ [weak self] in 
-  guard let self else { return }
-  self.someMethod()
-}
-```
-
-```swift
-capture(in: <#Type#>.someMethod)
 ```
 
 ----
@@ -77,11 +64,17 @@ object.dataSource = { [weak self] in
 object.dataSource = capture(orReturn: [], in: \.data)
 ```
 
-----
+> [!NOTE]
+>
+> Capture is weak by default, but you can also use `.strong` or `.unowned` strategies. Non-`.weak` strategies ignore `defaultValue` argument.
 
-Sendable closures (_beta_)
+##### Sendable closures (_beta_)
 
->  Prefix `capture` methods with an underscore to use explicit sendable closures
+>  If you face any ambiguities you can use hidden `marker` param in `capture` closures like
+>
+>  ```swift
+>  capture(marker: .mainActorSendable) { _self in ... }
+>  ```
 >  Tho closures should implicitly infer sendable conformance (see [Package.swift](./Package.swift#L34))
 
 ## Installation
@@ -101,7 +94,7 @@ If you use SwiftPM for your project, you can add `capture` to your package file.
 ```swift
 .package(
   url: "git@github.com:capturecontext/swift-capture.git",
-  .upToNextMajor("4.0.0-beta")
+  .upToNextMajor("4.0.0")
 )
 ```
 
@@ -109,8 +102,8 @@ Do not forget about target dependencies:
 
 ```swift
 .product(
-    name: "Capture", 
-    package: "swift-capture"
+  name: "Capture", 
+  package: "swift-capture"
 )
 ```
 

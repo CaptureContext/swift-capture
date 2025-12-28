@@ -1,9 +1,15 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
 	name: "swift-capture",
+	platforms: [
+	 .iOS(.v13),
+	 .macOS(.v10_15),
+	 .tvOS(.v13),
+	 .watchOS(.v6),
+ ],
 	products: [
 		.library(
 			name: "Capture",
@@ -14,24 +20,26 @@ let package = Package(
 		.package(
 			url: "https://github.com/apple/swift-docc-plugin.git",
 			from: "1.4.0"
-		),
+		)
 	],
 	targets: [
-		.target(name: "Capture"),
+		.target(
+			name: "Capture"
+		),
 		.testTarget(
 			name: "CaptureTests",
 			dependencies: [
 				.target(name: "Capture")
 			]
 		),
-	]
+	],
+	swiftLanguageModes: [.v6]
 )
 
-#if compiler(>=6)
-for target in package.targets where target.type != .system && target.type != .test {
-	target.swiftSettings = target.swiftSettings ?? []
+for target in package.targets where target.type == .system || target.type == .test {
 	target.swiftSettings?.append(contentsOf: [
-		.enableUpcomingFeature("InferSendableFromCaptures")
+		.swiftLanguageMode(.v5),
+		.enableExperimentalFeature("StrictConcurrency"),
+		.enableUpcomingFeature("InferSendableFromCaptures"),
 	])
 }
-#endif

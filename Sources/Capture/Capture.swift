@@ -1,176 +1,249 @@
 import Foundation
 
-// MARK: - Void result closures
-
-/// Weakly captures an object in non-parametrized void result closure.
-@inlinable
 public func capture<Object: AnyObject>(
-	_ object: Object,
-	in closure: @escaping (Object) -> Void
-) -> () -> Void {
-	return Weak(object).capture(in: closure)
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+) -> _OptionalReferenceContainerProtocol<Object> {
+	switch strategy {
+	case .weak:
+		return Weak(object)
+	case .strong:
+		return Strong(object)
+	case .unowned:
+		return Unowned(object)
+	}
 }
 
-/// Weakly captures an object in non-parametrized lazy void result closure.
-@inlinable
-public func capture<Object: AnyObject>(
-	_ object: Object,
-	in closure: @escaping (Object) -> () -> Void
-) -> () -> Void {
-	Weak(object).capture(in: closure)
-}
+// MARK: - Void
 
-/// Weakly captures an object in parametrized void result closure.
+@inlinable
 public func capture<Object: AnyObject, each Arg>(
-	_ object: Object,
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
 	in closure: @escaping (Object, repeat each Arg) -> Void
 ) -> (repeat each Arg) -> Void {
-	Weak(object).capture(in: closure)
+	capture(
+		object,
+		strategy,
+		orReturn: (),
+		in: closure
+	)
 }
 
-// MARK: Sendable
-
-/// Weakly captures an object in non-parametrized void result closure.
 @inlinable
-public func capture<Object: AnyObject & Sendable>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object) -> Void
-) -> @Sendable () -> Void {
-	return Weak(object)._capture(in: closure)
+public func capture<Object: AnyObject, each Arg>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	in closure: @escaping (Object, repeat each Arg) throws  -> Void
+) -> (repeat each Arg) throws -> Void {
+	capture(
+		object,
+		strategy,
+		orReturn: (),
+		in: closure
+	)
 }
 
-/// Weakly captures an object in non-parametrized lazy void result closure.
 @inlinable
-public func capture<Object: AnyObject & Sendable>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object) -> () -> Void
-) -> @Sendable () -> Void {
-	Weak(object)._capture(in: closure)
+public func capture<Object: AnyObject, each Arg>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	in closure: @escaping (Object, repeat each Arg) async -> Void
+) -> (repeat each Arg) async -> Void {
+	capture(
+		object,
+		strategy,
+		orReturn: (),
+		in: closure
+	)
 }
 
-/// Weakly captures an object in parametrized void result closure.
-public func _capture<Object: AnyObject & Sendable, each Arg>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object, repeat each Arg) -> Void
-) -> @Sendable (repeat each Arg) -> Void {
-	Weak(object)._capture(in: closure)
-}
-
-// MARK: - Non-void result closures
-
-/// Weakly captures an object in non-parametrized non-void result closure.
 @inlinable
-public func capture<Object: AnyObject, Output>(
-	_ object: Object,
-	orReturn defaultValue: @escaping @autoclosure () -> Output,
-	in closure: @escaping (Object) -> Output
-) -> () -> Output {
-	Weak(object).capture(orReturn: defaultValue(), in: closure)
+public func capture<Object: AnyObject, each Arg>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	in closure: @escaping (Object, repeat each Arg) async throws -> Void
+) -> (repeat each Arg) async throws -> Void {
+	capture(
+		object,
+		strategy,
+		orReturn: (),
+		in: closure
+	)
 }
 
-/// Weakly captures an object in non-parametrized lazy non-void result closure.
+// MARK: - defaultValue @autoclosure
+
 @inlinable
-public func capture<Object: AnyObject, Output>(
-	_ object: Object,
-	orReturn defaultValue: @escaping @autoclosure () -> Output,
-	in closure: @escaping (Object) -> () -> Output
-) -> () -> Output {
-	Weak(object).capture(orReturn: defaultValue(), in: closure)
-}
-
-/// Weakly captures an object in parametrized non-void result closure.
 public func capture<Object: AnyObject, each Arg, Output>(
-	_ object: Object,
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
 	orReturn defaultValue: @escaping @autoclosure () -> Output,
 	in closure: @escaping (Object, repeat each Arg) -> Output
 ) -> (repeat each Arg) -> Output {
-	Weak(object).capture(orReturn: defaultValue(), in: closure)
+	capture(
+		object,
+		strategy,
+		orReturn: defaultValue,
+		in: closure
+	)
 }
 
-// MARK: Sendable
-
-/// Weakly captures an object in non-parametrized non-void result closure.
 @inlinable
-public func _capture<Object: AnyObject & Sendable, Output>(
-	_ object: Object,
-	orReturn defaultValue: @escaping @autoclosure () -> Output,
-	in closure: @escaping (Object) -> Output
-) -> () -> Output {
-	Weak(object).capture(orReturn: defaultValue(), in: closure)
-}
-
-/// Weakly captures an object in non-parametrized lazy non-void result closure.
-@inlinable
-public func _capture<Object: AnyObject & Sendable, Output>(
-	_ object: Object,
-	orReturn defaultValue: @escaping @autoclosure () -> Output,
-	in closure: @escaping (Object) -> () -> Output
-) -> () -> Output {
-	Weak(object).capture(orReturn: defaultValue(), in: closure)
-}
-
-/// Weakly captures an object in parametrized non-void result closure.
-public func _capture<Object: AnyObject & Sendable, each Arg, Output>(
-	_ object: Object,
-	orReturn defaultValue: @escaping @autoclosure @Sendable () -> Output,
-	in closure: @escaping @Sendable (Object, repeat each Arg) -> Output
-) -> @Sendable (repeat each Arg) -> Output {
-	Weak(object)._capture(orReturn: defaultValue(), in: closure)
-}
-
-// MARK: - Non-void optional result closures
-
-/// Weakly captures an object in non-parametrized non-void optional result closure.
-@inlinable
-public func capture<Object: AnyObject, Output>(
-	_ object: Object,
-	in closure: @escaping (Object) -> Output?
-) -> () -> Output? {
-	Weak(object).capture(in: closure)
-}
-
-/// Weakly captures an object in non-parametrized lazy non-void optional result closure.
-@inlinable
-public func capture<Object: AnyObject, Output>(
-  _ object: Object,
-  in closure: @escaping (Object) -> () -> Output?
-) -> () -> Output? {
-  Weak(object).capture(in: closure)
-}
-
-/// Weakly captures an object in parametrized non-void optional result closure.
 public func capture<Object: AnyObject, each Arg, Output>(
-	_ object: Object,
-	in closure: @escaping (Object, repeat each Arg) -> Output?
-) -> (repeat each Arg) -> Output? {
-	Weak(object).capture(in: closure)
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping @autoclosure () -> Output,
+	in closure: @escaping (Object, repeat each Arg) throws -> Output
+) -> (repeat each Arg) throws -> Output {
+	capture(
+		object,
+		strategy,
+		orReturn: defaultValue,
+		in: closure
+	)
 }
 
-// MARK: Sendable
-
-/// Weakly captures an object in non-parametrized non-void optional result closure.
 @inlinable
-public func _capture<Object: AnyObject & Sendable, Output>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object) -> Output?
-) -> @Sendable () -> Output? {
-	Weak(object)._capture(in: closure)
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping @autoclosure () -> Output,
+	in closure: @escaping (Object, repeat each Arg) async -> Output
+) -> (repeat each Arg) async -> Output {
+	capture(
+		object,
+		strategy,
+		orReturn: defaultValue,
+		in: closure
+	)
 }
 
-/// Weakly captures an object in non-parametrized lazy non-void optional result closure.
 @inlinable
-public func _capture<Object: AnyObject & Sendable, Output>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object) -> () -> Output?
-) -> @Sendable () -> Output? {
-	Weak(object)._capture(in: closure)
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping @autoclosure () -> Output,
+	in closure: @escaping (Object, repeat each Arg) async throws -> Output
+) -> (repeat each Arg) async throws -> Output {
+	capture(
+		object,
+		strategy,
+		orReturn: defaultValue,
+		in: closure
+	)
 }
 
-/// Weakly captures an object in parametrized non-void optional result closure.
-public func _capture<Object: AnyObject & Sendable, each Arg, Output>(
-	_ object: Object,
-	in closure: @escaping @Sendable (Object, repeat each Arg) -> Output?
-) -> @Sendable (repeat each Arg) -> Output? {
-	Weak(object)._capture(in: closure)
+// MARK: - Source
+
+// MARK: Basic
+
+@inlinable
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping () -> Output,
+	in closure: @escaping (Object, repeat each Arg) -> Output
+) -> (repeat each Arg) -> Output {
+	switch strategy {
+	case .weak:
+		return { [weak object] (args: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each args)
+		}
+	case .unowned:
+		return { [unowned object] (args: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each args)
+		}
+	case .strong:
+		return { [object] (args: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each args)
+		}
+	}
 }
 
+// MARK: Throws
+
+@inlinable
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping () throws -> Output,
+	in closure: @escaping (Object, repeat each Arg) throws  -> Output
+) -> (repeat each Arg) throws -> Output {
+	switch strategy {
+	case .weak:
+		return { [weak object] (args: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each args)
+		}
+	case .unowned:
+		return { [unowned object] (args: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each args)
+		}
+	case .strong:
+		return { [object] (args: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each args)
+		}
+	}
+}
+
+// MARK: Async
+
+@inlinable
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping () async -> Output,
+	in closure: @escaping (Object, repeat each Arg) async -> Output
+) -> (repeat each Arg) async -> Output {
+	switch strategy {
+	case .weak:
+		return { [weak object] (args: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each args)
+		}
+	case .unowned:
+		return { [unowned object] (args: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each args)
+		}
+	case .strong:
+		return { [object] (args: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each args)
+		}
+	}
+}
+
+// MARK: AsyncThrows
+
+@inlinable
+public func capture<Object: AnyObject, each Arg, Output>(
+	_ object: Object?,
+	_ strategy: ObjectCaptureStrategy = .weak,
+	orReturn defaultValue: @escaping () async throws -> Output,
+	in closure: @escaping (Object, repeat each Arg) async throws -> Output
+) -> (repeat each Arg) async throws -> Output {
+	switch strategy {
+	case .weak:
+		return { [weak object] (args: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each args)
+		}
+	case .unowned:
+		return { [unowned object] (args: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each args)
+		}
+	case .strong:
+		return { [object] (args: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each args)
+		}
+	}
+}
