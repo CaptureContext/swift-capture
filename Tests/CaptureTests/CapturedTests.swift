@@ -1,11 +1,17 @@
 import Testing
 @_spi(Internals) import Capture
 
+
 @Suite
 struct CapturedTests {
 	class Object {}
 
 	@Test
+	@available(
+		iOS 16.0, macOS 13.0,
+		macCatalyst 13.0, tvOS 16.0,
+		watchOS 9.0, visionOS 1.0, *
+	)
 	func weakCapture() async throws {
 		do { // basic
 			let object: Object = .init()
@@ -83,6 +89,11 @@ struct CapturedTests {
 	}
 
 	@Test
+	@available(
+		iOS 16.0, macOS 13.0,
+		macCatalyst 13.0, tvOS 16.0,
+		watchOS 9.0, visionOS 1.0, *
+	)
 	func unownedCapture() async throws {
 		do { // explicit
 			let object: Object = .init()
@@ -125,6 +136,11 @@ struct CapturedTests {
 	}
 
 	@Test
+	@available(
+		iOS 16.0, macOS 13.0,
+		macCatalyst 13.0, tvOS 16.0,
+		watchOS 9.0, visionOS 1.0, *
+	)
 	func strongCapture() async throws {
 		do { // explicit
 			let object: Object = .init()
