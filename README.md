@@ -1,88 +1,174 @@
 # swift-capture
 
-[![test](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml/badge.svg)](https://github.com/CaptureContext/swift-capture/actions/workflows/Test.yml) ![SwiftPM 5.9](https://img.shields.io/badge/📦_swiftpm-5.9_|_6.0-ED523F.svg?style=flat) ![Platforms](https://img.shields.io/badge/platforms-iOS_|_macOS_|_tvOS_|_watchOS_|_Catalyst-ED523F.svg?style=flat)
-[![docs](https://img.shields.io/badge/docs-spi-ED523F.svg?style=flat)]([https://twitter.com/capture_context](https://swiftpackageindex.com/CaptureContext/swift-capture/3.0.1/documentation)) [![@capture_context](https://img.shields.io/badge/contact-@capture__context-1DA1F2.svg?style=flat&logo=twitter)](https://twitter.com/capture_context) 
+Ergonomic and safe weak capturing for Swift closures.
 
-A mechanism for ergonomic and safe capturing & weakifying objects in Swift.
+## Table of Contents
 
-## Usage Examples
+- [Motivation](#motivation)
+- [Usage](#usage)
+- [Installation](#installation)
+- [License](#license)
+
+## Motivation
+
+Weak captures in Swift closures often require repetitive boilerplate:
 
 ```swift
-Without Capture
-```
-
-```swift
-With Capture
-```
-
-----
-
-Default
-```swift
-{ [weak self] in 
+{ [weak self] in
   guard let self else { return }
-  /// ...
+  // ...
 }
 ```
 
+While explicit, this pattern adds noise and can obscure the intent of the closure, especially when used frequently.
+
+`swift-capture` provides a set of helpers that encapsulate this pattern, allowing weakly captured objects to be used safely without repeating the same guard logic.
+
+## Usage
+
+> [!NOTE]
+>
+> _All `NSObject` subclasses conform to `CapturableObjectProtocol` by default.
+> Custom reference types can conform by inheriting `AnyObject`._
+
+A common use case for capturing objects is handling asynchronous results:
+
 ```swift
-capture { _self in
-  /// ...
+func loadData() {
+  apiService.fetchData { [weak self] items in 
+    guard let self else { return }
+    self.items = items
+  }
 }
 ```
 
-----
+Can be replaced with:
 
-Multiple parameters
 ```swift
-{ [weak self] a, b, c in 
-  guard let self else { return }
-  /// ...
+func loadData() {
+  apiService.fetchData(completion: capture { _self, items in
+    _self.items = items
+  })
 }
 ```
 
+If the object is already deallocated, the closure is simply not executed.
+
+`swift-capture` helpers utilize variadic generics to automatically support any number of arguments:
+
 ```swift
-capture { _self, a, b, c in 
-  /// ...
+networkService.perform(request, completion: capture { _self, response, data, error in
+  // ...
+})
+```
+
+For `non-Void` and `non-Optional` output closures, a default value must be provided:
+
+```swift
+dataSource.numberOfItems = capture(orReturn: 0) { _self in
+  _self.items.count
 }
 ```
 
-----
-
-Methods
+Access to properties can be simplified by using key paths as functions:
 
 ```swift
-{ [weak self] in 
-  guard let self else { return }
-  self.someMethod()
+dataSource.numberOfItems = capture(orReturn: 0, in: \.items.count)
+```
+
+#### Overriding strategy
+
+When you need a custom capture strategy, it is recommended to use method accessors:
+
+```swift
+object.capture(as: .strong) { _self in
+  _self.performCriticalWork()
 }
 ```
 
-```swift
-capture(in: <#Type#>.someMethod)
-```
-
-----
-
-Return values
+The functor accessor also provides a way to override the default (`.weak`) strategy:
 
 ```swift
-object.dataSource = { [weak self] in
-  guard let self else { return [] }
-  return self.data
+object.capture.as(.strong).orReturn(()) { _self in
+  _self.performWork()
 }
 ```
 
+> [!NOTE]
+>
+> _There are proper overrides of `callAsFunction` available as well, so the following examples are also valid:_
+>
+> ```swift
+> object.capture.as(.strong)(in: { _self in
+>     _self.performWork()
+> })
+> ```
+>
+> ```swift
+> object.capture.as(.strong).self { _self in
+>     _self.performWork()
+> }
+> ```
+>
+> ```swift
+> object.capture.as(.strong).callAsFunction { _self in
+>     _self.performWork()
+> }
+> ```
+>
+> _However, this will not compile even though the code is valid:_
+>
+> ```swift
+> object.capture.as(.strong) { _self in // ❌ Extra trailing closure passed in call
+>     _self.performWork()
+> }
+> ```
+>
+> _Convenience method `orReturn` is provided as a workaround for [a Swift compiler bug](https://github.com/swiftlang/swift/issues/87210) that leads to a compilation issue when `callAsFunction` is used as a trailing closure._
+
+---
+
+#### Async / throwing variants
+
+All function kinds are supported:
+
 ```swift
-object.dataSource = capture(orReturn: [], in: \.data)
+try object.capture { _self in
+  try _self.throwingWork()
+}
+
+await object.capture { _self in
+  await _self.asyncWork()
+}
+
+try await object.capture { _self in
+  try await _self.asyncThrowingWork()
+}
 ```
 
-----
+Including overloads for `orReturn` and `onMainActor` functor methods.
 
-Sendable closures (_beta_)
+### Sendability
 
->  Prefix `capture` methods with an underscore to use explicit sendable closures
->  Tho closures should implicitly infer sendable conformance (see [Package.swift](./Package.swift#L34))
+- Functors are `Sendable` when the captured object is `Sendable`.
+- Sendable functors preserve closure sendability.
+- `onMainActor` can be used to preserve `@MainActor`.
+- `uncheckedSendable` is available for explicit opt-out.
+
+```swift
+object.capture.uncheckedSendable.onMainActor { _self in
+  _self.updateUI()
+}
+```
+
+### Containers
+
+This package does also provide:
+
+- `Weak`
+- `Strong`
+- `Unowned`
+- `Captured`
 
 ## Installation
 
@@ -91,17 +177,17 @@ Sendable closures (_beta_)
 You can add `swift-capture` to an Xcode project by adding it as a package dependency.
 
 1. From the **File** menu, select **Swift Packages › Add Package Dependency…**
-2. Enter [`"https://github.com/capturecontext/swift-capture"`](https://github.com/capturecontext/swift-capture) into the package repository URL text field
-3. Choose products you need to link them to your project.
+2. Enter [`https://github.com/capturecontext/swift-capture`](https://github.com/capturecontext/swift-capture) into the package repository URL text field
+3. Choose the products you need to link to your project.
 
 ### Recommended
 
-If you use SwiftPM for your project, you can add `capture` to your package file. Also our advice is to use SSH.
+If you use SwiftPM for your project structure, add `swift-capture` to your package file:
 
 ```swift
 .package(
-  url: "git@github.com:capturecontext/swift-capture.git",
-  .upToNextMajor("4.0.0-beta")
+  url: "https://github.com/capturecontext/swift-capture.git",
+  .upToNextMinor(from: "4.0.0")
 )
 ```
 
@@ -109,12 +195,11 @@ Do not forget about target dependencies:
 
 ```swift
 .product(
-    name: "Capture", 
-    package: "swift-capture"
+  name: "Capture",
+  package: "swift-capture"
 )
 ```
 
 ## License
 
-This library is released under the MIT license. See [LICENSE](./LICENSE) for details.
-
+This library is released under the MIT license. See [LICENSE](LICENSE) for details.
