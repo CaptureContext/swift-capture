@@ -1,5 +1,18 @@
 version: 1
 builder:
   configs:
-  - documentation_targets: [Capture]
-    swift_version: 5.9
+  - platform: ios
+  - platform: macos-spm
+  - platform: macos-xcodebuild
+  - platform: tvos
+  - platform: watchos
+  - platform: android
+
+  - platform: linux
+    swift_version: '5.9'
+
+  - platform: linux
+    swift_version: '6.0'
+
+  - documentation_targets:
+    - Capture
