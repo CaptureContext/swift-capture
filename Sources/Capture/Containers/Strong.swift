@@ -1,5 +1,6 @@
 import Foundation
 
+/// A property wrapper that holds a strong reference to an object.
 @propertyWrapper
 public struct Strong<Object: AnyObject>: _OptionalReferenceContainerProtocol {
 	public typealias RootContainer = Strong<Object>

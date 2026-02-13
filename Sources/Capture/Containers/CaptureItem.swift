@@ -1,3 +1,4 @@
+/// A capture item type that conforms to both the protocol and Sendable.
 public typealias _SendableCaptureItemProtocol<Object> = CaptureItemProtocol<Object> & Sendable
 
 public protocol CaptureItemProtocol<Object>: __OptionalReferenceContainerProtocol where __CaptureRefObject == Object {
@@ -35,21 +36,40 @@ public struct CaptureItem<Object: AnyObject>: CaptureItemProtocol {
 }
 
 extension _OptionalReferenceContainerProtocol {
+	/// Converts this container into a capture item.
+	///
+	/// - Returns: A capture item wrapping this reference container.
 	public var capture: some CaptureItemProtocol<__CaptureRefObject> {
 		CaptureItem(self)
 	}
 }
 
 extension __OptionalReferenceContainerProtocol {
+	/// Converts this container into an unchecked Sendable capture item.
+	///
+	/// This bypasses Sendable conformance checks
+	///
+	/// - Returns: An unchecked Sendable capture item wrapping this reference container.
 	public var uncheckedSendable: some _SendableCaptureItemProtocol<__CaptureRefObject> {
 		CaptureItem.UncheckedSendable(self)
 	}
 }
 
 extension CaptureItemProtocol {
+	/// The underlying captured object, if still alive.
 	@usableFromInline
 	var object: Object? { __refObject }
 
+	/// Returns a capture item with an overridden capture strategy.
+	///
+	/// The original object reference is preserved, but the item uses the new strategy
+	/// when executing closures.
+	///
+	/// - Note: If current object is `nil`, an attempt to override current strategy with `.unowned`
+	///         will result in a fallback to `.weak` strategy
+	///
+	/// - Parameter overrideCaptureStrategy: The new capture strategy to apply.
+	/// - Returns: A capture item using the overridden strategy.
 	@inlinable
 	public func `as`(
 		_ overrideCaptureStrategy: ObjectCaptureStrategy
@@ -60,6 +80,16 @@ extension CaptureItemProtocol {
 		))
 	}
 
+	/// Returns a capture item with an overridden capture strategy.
+	///
+	/// The original object reference is preserved, but the item uses the new strategy
+	/// when executing closures.
+	///
+	/// - Note: If current object is `nil`, an attempt to override current strategy with `.unowned`
+	///         will result in a runtime crash
+	///
+	/// - Parameter overrideCaptureStrategy: The new capture strategy to apply.
+	/// - Returns: A capture item using the overridden strategy.
 	@inlinable
 	public func `as`(
 		unsafe overrideCaptureStrategy: ObjectCaptureStrategy
@@ -72,6 +102,16 @@ extension CaptureItemProtocol {
 
 	// MARK: - Swift bug workaround
 
+	/// Returns a closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: A closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output>(
 		_ defaultValue: @escaping @autoclosure () -> Output,
@@ -80,6 +120,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: A throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output>(
 		_ defaultValue: @escaping @autoclosure () -> Output,
@@ -88,6 +138,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns an async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: An async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output: Sendable>(
 		_ defaultValue: @escaping @autoclosure () -> Output,
@@ -96,6 +156,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns an async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: An async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output: Sendable>(
 		_ defaultValue: @escaping @autoclosure () -> Output,
@@ -106,6 +176,15 @@ extension CaptureItemProtocol {
 
 	// MARK: - Void
 
+	/// Returns a closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Parameters:
+	///   - closure: A closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) -> Void
@@ -113,6 +192,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns a throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Parameters:
+	///   - closure: A throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) throws -> Void
@@ -120,6 +208,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns an async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Parameters:
+	///   - closure: An async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) async -> Void
@@ -127,6 +224,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns an async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Parameters:
+	///   - closure: An async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) async throws -> Void
@@ -136,6 +242,15 @@ extension CaptureItemProtocol {
 
 	// MARK: - Optional
 
+	/// Returns a closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Parameters:
+	///   - closure: A closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) -> Output?
@@ -143,6 +258,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: nil, in: closure)
 	}
 
+	/// Returns a throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Parameters:
+	///   - closure: A throwing closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) throws -> Output?
@@ -150,6 +274,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: nil, in: closure)
 	}
 
+	/// Returns an async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Parameters:
+	///   - closure: An async closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     An async closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) async -> Output?
@@ -157,6 +290,15 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: nil, in: closure)
 	}
 
+	/// Returns an async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Parameters:
+	///   - closure: An async throwing closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     An async throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping (__CaptureRefObject, repeat each Arg) async throws -> Output?
@@ -166,6 +308,16 @@ extension CaptureItemProtocol {
 
 	// MARK: - defaultValue @autoclosure
 
+	/// Returns a closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: A closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure () -> Output,
@@ -174,6 +326,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: A throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure () -> Output,
@@ -182,6 +344,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns an async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: An async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure () -> Output,
@@ -190,6 +362,16 @@ extension CaptureItemProtocol {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns an async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An autoclosure providing a default value if the object was deallocated.
+	///   - closure: An async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure () -> Output,
@@ -200,6 +382,17 @@ extension CaptureItemProtocol {
 
 	// MARK: - Source
 
+	/// Returns a closure that captures the object with the specified strategy.
+	///
+	/// This is the primary implementation that other callAsFunction variants delegate to.
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: A closure providing a default value if the object was deallocated.
+	///   - closure: A closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping () -> Output,
@@ -211,6 +404,16 @@ extension CaptureItemProtocol {
 		}
 	}
 
+	/// Returns a throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: A throwing closure providing a default value if the object was deallocated.
+	///   - closure: A throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping () throws -> Output,
@@ -222,6 +425,16 @@ extension CaptureItemProtocol {
 		}
 	}
 
+	/// Returns an async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An async closure providing a default value if the object was deallocated.
+	///   - closure: An async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping () async -> Output,
@@ -233,6 +446,16 @@ extension CaptureItemProtocol {
 		}
 	}
 
+	/// Returns an async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Parameters:
+	///   - defaultValue: An async throwing closure providing a default value if the object was deallocated.
+	///   - closure: An async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     An async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping () async throws -> Output,
@@ -251,6 +474,18 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: - Swift bug workaround
 
+	/// Returns a Sendable closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output>(
 		_ defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -259,6 +494,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output>(
 		_ defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -267,6 +514,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output: Sendable>(
 		_ defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -275,6 +534,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func orReturn<each Arg, Output: Sendable>(
 		_ defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -285,6 +556,17 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: - Void
 
+	/// Returns a Sendable closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) -> Void
@@ -292,6 +574,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns a Sendable throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) throws -> Void
@@ -299,6 +592,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns a Sendable async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) async -> Void
@@ -306,6 +610,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: (), in: closure)
 	}
 
+	/// Returns a Sendable async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) async throws -> Void
@@ -315,6 +630,17 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: - Optional
 
+	/// Returns a Sendable closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A Sendable closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) -> Output?
@@ -322,6 +648,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: nil, in: closure)
 	}
 
+	/// Returns a Sendable throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable throwing closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A Sendable throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) throws -> Output?
@@ -329,6 +666,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: nil, in: closure)
 	}
 
+	/// Returns a Sendable async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable async closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A Sendable async closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) async -> Output?
@@ -336,6 +684,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: { nil }, in: closure)
 	}
 
+	/// Returns a Sendable async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - closure: A Sendable async throwing closure receiving the captured object and returning an optional result.
+	/// - Returns:
+	///     A Sendable async throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		in closure: @escaping @Sendable (__CaptureRefObject, repeat each Arg) async throws -> Output?
@@ -345,6 +704,18 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: - defaultValue @autoclosure
 
+	/// Returns a Sendable closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -353,6 +724,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -361,6 +744,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output: Sendable>(
 		orReturn defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -369,6 +764,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		callAsFunction(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a Sendable async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable autoclosure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output: Sendable>(
 		orReturn defaultValue: @escaping @autoclosure @Sendable () -> Output,
@@ -379,6 +786,19 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: - Source
 
+	/// Returns a Sendable closure that captures the object with the specified strategy.
+	///
+	/// This is the primary implementation that other callAsFunction variants delegate to.
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable closure providing a default value if the object was deallocated.
+	///   - closure: A Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @Sendable () -> Output,
@@ -390,6 +810,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a Sendable throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable throwing closure providing a default value if the object was deallocated.
+	///   - closure: A Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @Sendable () throws -> Output,
@@ -401,6 +833,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a Sendable async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable async closure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @Sendable () async -> Output,
@@ -412,6 +856,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a Sendable async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: Only available when `Self` conforms to `Sendable`.
+	///
+	/// - Parameters:
+	///   - defaultValue: A Sendable async throwing closure providing a default value if the object was deallocated.
+	///   - closure: A Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func callAsFunction<each Arg, Output>(
 		orReturn defaultValue: @escaping @Sendable () async throws -> Output,
@@ -427,6 +883,17 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: Void
 
+	/// Returns a @MainActor closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) -> Void
@@ -434,6 +901,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: (), in: closure)
 	}
 
+	/// Returns a @MainActor throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) throws -> Void
@@ -441,6 +919,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: (), in: closure)
 	}
 
+	/// Returns a @MainActor async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) async -> Void
@@ -448,6 +937,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: (), in: closure)
 	}
 
+	/// Returns a @MainActor async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the closure is not executed.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) async throws -> Void
@@ -457,6 +957,17 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: Optional
 
+	/// Returns a @MainActor closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) -> Output?
@@ -464,6 +975,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: nil, in: closure)
 	}
 
+	/// Returns a @MainActor throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) throws -> Output?
@@ -471,6 +993,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: nil, in: closure)
 	}
 
+	/// Returns a @MainActor async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) async -> Output?
@@ -478,6 +1011,17 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: nil, in: closure)
 	}
 
+	/// Returns a @MainActor async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, nil is returned without executing the closure.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - closure: A @MainActor Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async throwing closure that returns the closure result if the object is alive, or nil otherwise.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		in closure: @escaping @MainActor @Sendable (__CaptureRefObject, repeat each Arg) async throws -> Output?
@@ -487,6 +1031,18 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: defaultValue @autoclosure
 
+	/// Returns a @MainActor closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor autoclosure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @MainActor @Sendable () -> Output,
@@ -495,6 +1051,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a @MainActor throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor autoclosure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @MainActor @Sendable () -> Output,
@@ -503,6 +1071,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a @MainActor async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor autoclosure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @MainActor @Sendable () -> Output,
@@ -511,6 +1091,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		onMainActor(orReturn: defaultValue, in: closure)
 	}
 
+	/// Returns a @MainActor async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor autoclosure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @autoclosure @MainActor @Sendable () -> Output,
@@ -521,6 +1113,19 @@ extension CaptureItemProtocol where Self: Sendable {
 
 	// MARK: Source
 
+	/// Returns a @MainActor closure that captures the object with the specified strategy.
+	///
+	/// This is the primary implementation that other onMainActor variants delegate to.
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor Sendable closure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @MainActor @Sendable () -> Output,
@@ -535,6 +1140,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a @MainActor throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor Sendable throwing closure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @MainActor @Sendable () throws -> Output,
@@ -549,6 +1166,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a @MainActor async closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor Sendable async closure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable async closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @MainActor @Sendable () async -> Output,
@@ -563,6 +1192,18 @@ extension CaptureItemProtocol where Self: Sendable {
 		}
 	}
 
+	/// Returns a @MainActor async throwing closure that captures the object with the specified strategy.
+	///
+	/// The returned closure contains a guard check: it verifies the captured object is still alive
+	/// when called. If deallocated, the default value is returned; otherwise the closure executes.
+	///
+	/// - Note: The closure executes on the main thread.
+	///
+	/// - Parameters:
+	///   - defaultValue: A @MainActor Sendable async throwing closure providing a default value if the object was deallocated.
+	///   - closure: A @MainActor Sendable async throwing closure receiving the captured object and any further arguments.
+	/// - Returns:
+	///     A @MainActor Sendable async throwing closure that checks object liveness before executing the provided closure.
 	@inlinable
 	public func onMainActor<each Arg, Output>(
 		orReturn defaultValue: @escaping @MainActor @Sendable () async throws -> Output,

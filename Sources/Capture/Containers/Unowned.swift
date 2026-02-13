@@ -1,5 +1,13 @@
 import Foundation
 
+/// A property wrapper that holds an unowned reference to an object.
+///
+/// The wrapped value is non-optional and does not extend the lifetime of the referenced object.
+/// Accessing an unowned reference to a deallocated object will cause a runtime error.
+/// This is useful for capture scenarios where you have strict guarantees that the object will outlive
+/// the closure, allowing you to avoid the overhead of weak reference checking.
+///
+/// - Warning: Ensure the referenced object outlives this container to avoid crashes.
 @propertyWrapper
 public struct Unowned<Object: AnyObject>: _OptionalReferenceContainerProtocol {
 	public typealias RootContainer = Unowned<Object>

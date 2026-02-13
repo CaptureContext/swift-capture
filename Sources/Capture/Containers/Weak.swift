@@ -1,5 +1,10 @@
 import Foundation
 
+/// A property wrapper that holds a weak reference to an object.
+///
+/// The wrapped value is optional and automatically becomes `nil` when the referenced object is deallocated.
+/// This is useful for preventing retain cycles in scenarios where a capture item needs to hold a reference
+/// to an object without extending its lifetime.
 @propertyWrapper
 public struct Weak<Object: AnyObject>: _OptionalReferenceContainerProtocol {
 	public typealias RootContainer = Weak<Object>

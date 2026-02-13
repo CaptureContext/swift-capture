@@ -1,5 +1,17 @@
 import Foundation
 
+/// A property wrapper that holds a reference to an object using a configurable capture strategy.
+///
+/// This type provides a flexible container that can use weak, strong, or unowned reference strategies,
+/// determined either at runtime or initialization time. It wraps an underlying reference container
+/// and delegates to it, allowing you to switch between strategies based on your needs.
+///
+/// - Note: This type is useful when you need to dynamically choose a capture strategy at runtime.
+///
+/// You can initialize a `Captured` instance with a specific strategy:
+/// - `.weak`: The reference becomes `nil` if the object is deallocated
+/// - `.strong`: The object is kept alive by this container
+/// - `.unowned`: The object must outlive this container (runtime error if accessed after deallocation)
 @propertyWrapper
 public struct Captured<Object: AnyObject>: _OptionalReferenceContainerProtocol {
 	public typealias RootContainer = Self
