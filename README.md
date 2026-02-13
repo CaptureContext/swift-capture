@@ -1,5 +1,7 @@
 # swift-capture
 
+[![CI](https://github.com/capturecontext/swift-capture/actions/workflows/ci.yml/badge.svg)](https://github.com/capturecontext/swift-capture/actions/workflows/ci.yml) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fcapturecontext%2Fswift-capture%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/capturecontext/swift-capture) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fcapturecontext%2Fswift-capture%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/capturecontext/swift-capture)
+
 Ergonomic and safe weak capturing for Swift closures.
 
 ## Table of Contents
