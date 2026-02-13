@@ -187,7 +187,7 @@ If you use SwiftPM for your project structure, add `swift-capture` to your packa
 ```swift
 .package(
   url: "https://github.com/capturecontext/swift-capture.git",
-  .upToNextMinor(from: "4.0.0")
+  .upToNextMajor(from: "4.0.0")
 )
 ```
 
