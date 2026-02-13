@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  xcodebuild-test:
+    name: xcodebuild-test
+    if: |
+      !contains(github.event.head_commit.message, '[ci skip]') &&
+      !contains(github.event.head_commit.message, '[ci skip test]')
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        platform: [iOS, macOS, macCatalyst, tvOS, watchOS]
+        xcode: ['26.2']
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v6
+    - name: Test
+      uses: capturecontext/swift-package-action/build@3.0-beta.13
+      with:
+        xcode: ${{ matrix.xcode }}
+        cache-derived-data: true
+        action: xcodebuild-test
+        platform: ${{ matrix.platform }}
+        scheme: swift-capture
