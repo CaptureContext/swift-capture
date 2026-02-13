@@ -17,26 +17,6 @@ struct CaptureItemTests {
 	}
 
 	@Test
-	func checkDeinit() async throws {
-		var isObjectDeinitialized = false
-
-		var object: Object? = Object(onDeinit: {
-			isObjectDeinitialized = true
-		})
-
-		var weakObject = Weak(object)
-
-		#expect(!isObjectDeinitialized)
-		object = nil
-		#expect(isObjectDeinitialized)
-
-		do { // mute warnings
-			weakObject = .init()
-			_ = weakObject
-		}
-	}
-
-	@Test
 	func checkDeinit() {
 		var isObjectDeinitialized = false
 		var numberOfCalls = 0
