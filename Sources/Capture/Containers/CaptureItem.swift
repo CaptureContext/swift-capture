@@ -39,7 +39,7 @@ extension _OptionalReferenceContainerProtocol {
 	/// Converts this container into a capture item.
 	///
 	/// - Returns: A capture item wrapping this reference container.
-	public var capture: some CaptureItemProtocol<__CaptureRefObject> {
+	public var capture: CaptureItem<__CaptureRefObject> {
 		CaptureItem(self)
 	}
 }
@@ -50,7 +50,7 @@ extension __OptionalReferenceContainerProtocol {
 	/// This bypasses Sendable conformance checks
 	///
 	/// - Returns: An unchecked Sendable capture item wrapping this reference container.
-	public var uncheckedSendable: some _SendableCaptureItemProtocol<__CaptureRefObject> {
+	public var uncheckedSendable: CaptureItem<__CaptureRefObject>.UncheckedSendable {
 		CaptureItem.UncheckedSendable(self)
 	}
 }
@@ -73,7 +73,7 @@ extension CaptureItemProtocol {
 	@inlinable
 	public func `as`(
 		_ overrideCaptureStrategy: ObjectCaptureStrategy
-	) -> some CaptureItemProtocol<Object> {
+	) -> CaptureItem<Object> {
 		return CaptureItem(Captured(
 			safe: object,
 			as: overrideCaptureStrategy
@@ -93,7 +93,7 @@ extension CaptureItemProtocol {
 	@inlinable
 	public func `as`(
 		unsafe overrideCaptureStrategy: ObjectCaptureStrategy
-	) -> some CaptureItemProtocol<Object> {
+	) -> CaptureItem<Object> {
 		return CaptureItem(Captured(
 			unsafe: object,
 			as: overrideCaptureStrategy

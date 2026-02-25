@@ -19,7 +19,7 @@ public enum ObjectCaptureStrategy: Sendable {
 extension CapturableObjectProtocol {
 	/// Accesses the object's capture interface with default weak strategy.
 	@inlinable
-	public var capture: some CaptureItemProtocol<Self> {
+	public var capture: CaptureItem<Self> {
 		CaptureItem(Captured(self, as: .weak))
 	}
 

@@ -14,6 +14,6 @@ import Foundation
 public func capture<Object: AnyObject>(
 	_ object: Object,
 	as strategy: ObjectCaptureStrategy = .weak
-) -> some CaptureItemProtocol<Object> {
+) -> CaptureItem<Object> {
 	Captured(object, as: strategy).capture
 }
