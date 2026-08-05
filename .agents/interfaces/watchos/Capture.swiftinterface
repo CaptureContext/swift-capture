@@ -1,0 +1,574 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
+// swift-module-flags: -target arm64-apple-watchos4.0-simulator -enable-objc-interop -swift-version 6 -O -module-name Capture -package-name swift_capture
+// swift-module-flags-ignorable:  -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.3
+import Foundation
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public protocol CapturableObjectProtocol : AnyObject {
+}
+public enum ObjectCaptureStrategy : Swift.Sendable {
+  case weak
+  case strong
+  case unowned
+  @_semantics("derived_enum_equals") @_implements(Swift.Equatable, ==(_:_:)) public static func __derived_enum_equals(_ a: Capture.ObjectCaptureStrategy, _ b: Capture.ObjectCaptureStrategy) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension Capture.CapturableObjectProtocol {
+  @inlinable public var capture: Capture.CaptureItem<Self> {
+    get {
+		CaptureItem(Captured(self, as: .weak))
+	}
+  }
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) -> Swift.Void) -> (repeat each Arg) -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) throws -> Swift.Void) -> (repeat each Arg) throws -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) async -> Swift.Void) -> (repeat each Arg) async -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) async throws -> Swift.Void) -> (repeat each Arg) async throws -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) -> Output?) -> (repeat each Arg) -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) throws -> Output?) -> (repeat each Arg) throws -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) async -> Output?) -> (repeat each Arg) async -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping (Self, repeat each Arg) async throws -> Output?) -> (repeat each Arg) async throws -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self, repeat each Arg) -> Output) -> (repeat each Arg) -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self, repeat each Arg) throws -> Output) -> (repeat each Arg) throws -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self, repeat each Arg) async -> Output) -> (repeat each Arg) async -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self, repeat each Arg) async throws -> Output) -> (repeat each Arg) async throws -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping () -> Output, in closure: @escaping (Self, repeat each Arg) -> Output) -> (repeat each Arg) -> Output {
+		capture.as(strategy)(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping () throws -> Output, in closure: @escaping (Self, repeat each Arg) throws -> Output) -> (repeat each Arg) throws -> Output {
+		capture.as(strategy)(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping () async -> Output, in closure: @escaping (Self, repeat each Arg) async -> Output) -> (repeat each Arg) async -> Output {
+		capture.as(strategy)(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping () async throws -> Output, in closure: @escaping (Self, repeat each Arg) async throws -> Output) -> (repeat each Arg) async throws -> Output {
+		capture.as(strategy)(orReturn: defaultValue, in: closure)
+	}
+}
+extension Capture.CapturableObjectProtocol where Self : Swift.Sendable {
+  public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) -> Swift.Void) -> @Sendable (repeat each Arg) -> Swift.Void
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) throws -> Swift.Void) -> @Sendable (repeat each Arg) throws -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) async -> Swift.Void) -> @Sendable (repeat each Arg) async -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) async throws -> Swift.Void) -> @Sendable (repeat each Arg) async throws -> Swift.Void {
+		capture(
+			as: strategy,
+			orReturn: (),
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) -> Output?) -> @Sendable (repeat each Arg) -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) throws -> Output?) -> @Sendable (repeat each Arg) throws -> Output? {
+		capture(
+			as: strategy,
+			orReturn: nil,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) async -> Output?) -> @Sendable (repeat each Arg) async -> Output? {
+		capture(
+			as: strategy,
+			orReturn: { nil },
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, in closure: @escaping @Sendable (Self, repeat each Arg) async throws -> Output?) -> @Sendable (repeat each Arg) async throws -> Output? {
+		capture(
+			as: strategy,
+			orReturn: { nil },
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) -> Output) -> @Sendable (repeat each Arg) -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) throws -> Output) -> @Sendable (repeat each Arg) throws -> Output {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) async -> Output) -> @Sendable (repeat each Arg) async -> Output where Output : Swift.Sendable {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) async throws -> Output) -> @Sendable (repeat each Arg) async throws -> Output where Output : Swift.Sendable {
+		capture(
+			as: strategy,
+			orReturn: defaultValue,
+			in: closure
+		)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) -> Output) -> @Sendable (repeat each Arg) -> Output {
+		capture.as(strategy).uncheckedSendable(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping @Sendable () throws -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) throws -> Output) -> @Sendable (repeat each Arg) throws -> Output {
+		capture.as(strategy).uncheckedSendable(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping @Sendable () async -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) async -> Output) -> @Sendable (repeat each Arg) async -> Output {
+		capture.as(strategy).uncheckedSendable(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func capture<each Arg, Output>(as strategy: Capture.ObjectCaptureStrategy, orReturn defaultValue: @escaping @Sendable () async throws -> Output, in closure: @escaping @Sendable (Self, repeat each Arg) async throws -> Output) -> @Sendable (repeat each Arg) async throws -> Output {
+		capture.as(strategy).uncheckedSendable(orReturn: defaultValue, in: closure)
+	}
+}
+extension ObjectiveC.NSObject : Capture.CapturableObjectProtocol {
+}
+@inlinable public func capture<Object>(_ object: Object, as strategy: Capture.ObjectCaptureStrategy = .weak) -> Capture.CaptureItem<Object> where Object : AnyObject {
+	Captured(object, as: strategy).capture
+}
+public typealias _SendableCaptureItemProtocol<Object> = Capture.CaptureItemProtocol<Object> & Swift.Sendable
+public protocol CaptureItemProtocol<Object> : Capture.__OptionalReferenceContainerProtocol {
+  associatedtype Object where Self.Object == Self.__CaptureRefObject
+}
+public struct CaptureItem<Object> : Capture.CaptureItemProtocol where Object : AnyObject {
+  public init(_ container: any Capture.__OptionalReferenceContainerProtocol<Object>)
+  public struct UncheckedSendable : Capture.CaptureItemProtocol, @unchecked Swift.Sendable {
+    public init(_ container: any Capture.__OptionalReferenceContainerProtocol<Object>)
+    public typealias __CaptureRefObject = Object
+  }
+  public typealias __CaptureRefObject = Object
+}
+extension Capture._OptionalReferenceContainerProtocol {
+  public var capture: Capture.CaptureItem<Self.__CaptureRefObject> {
+    get
+  }
+}
+extension Capture.__OptionalReferenceContainerProtocol {
+  public var uncheckedSendable: Capture.CaptureItem<Self.__CaptureRefObject>.UncheckedSendable {
+    get
+  }
+}
+extension Capture.CaptureItemProtocol {
+  @usableFromInline
+  internal var object: Self.Object? {
+    get
+  }
+  @inlinable public func `as`(_ overrideCaptureStrategy: Capture.ObjectCaptureStrategy) -> Capture.CaptureItem<Self.Object> {
+		return CaptureItem(Captured(
+			safe: object,
+			as: overrideCaptureStrategy
+		))
+	}
+  @inlinable public func `as`(unsafe overrideCaptureStrategy: Capture.ObjectCaptureStrategy) -> Capture.CaptureItem<Self.Object> {
+		return CaptureItem(Captured(
+			unsafe: object,
+			as: overrideCaptureStrategy
+		))
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) -> Output) -> (repeat each Arg) -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> (repeat each Arg) throws -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> (repeat each Arg) async -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> (repeat each Arg) async throws -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) -> Swift.Void) -> (repeat each Arg) -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) throws -> Swift.Void) -> (repeat each Arg) throws -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async -> Swift.Void) -> (repeat each Arg) async -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async throws -> Swift.Void) -> (repeat each Arg) async throws -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) -> Output?) -> (repeat each Arg) -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) throws -> Output?) -> (repeat each Arg) throws -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async -> Output?) -> (repeat each Arg) async -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async throws -> Output?) -> (repeat each Arg) async throws -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) -> Output) -> (repeat each Arg) -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> (repeat each Arg) throws -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> (repeat each Arg) async -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> (repeat each Arg) async throws -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping () -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) -> Output) -> (repeat each Arg) -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping () throws -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> (repeat each Arg) throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping () async -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> (repeat each Arg) async -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping () async throws -> Output, in closure: @escaping (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> (repeat each Arg) async throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each arg)
+		}
+	}
+}
+extension Capture.CaptureItemProtocol where Self : Swift.Sendable {
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output) -> @Sendable (repeat each Arg) -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> @Sendable (repeat each Arg) throws -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> @Sendable (repeat each Arg) async -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func orReturn<each Arg, Output>(_ defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> @Sendable (repeat each Arg) async throws -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Swift.Void) -> @Sendable (repeat each Arg) -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Swift.Void) -> @Sendable (repeat each Arg) throws -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Swift.Void) -> @Sendable (repeat each Arg) async -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Swift.Void) -> @Sendable (repeat each Arg) async throws -> Swift.Void {
+		callAsFunction(orReturn: (), in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output?) -> @Sendable (repeat each Arg) -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output?) -> @Sendable (repeat each Arg) throws -> Output? {
+		callAsFunction(orReturn: nil, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output?) -> @Sendable (repeat each Arg) async -> Output? {
+		callAsFunction(orReturn: { nil }, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output?) -> @Sendable (repeat each Arg) async throws -> Output? {
+		callAsFunction(orReturn: { nil }, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output) -> @Sendable (repeat each Arg) -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> @Sendable (repeat each Arg) throws -> Output {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> @Sendable (repeat each Arg) async -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> @Sendable (repeat each Arg) async throws -> Output where Output : Swift.Sendable {
+		callAsFunction(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping @Sendable () -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output) -> @Sendable (repeat each Arg) -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping @Sendable () throws -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> @Sendable (repeat each Arg) throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping @Sendable () async -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> @Sendable (repeat each Arg) async -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func callAsFunction<each Arg, Output>(orReturn defaultValue: @escaping @Sendable () async throws -> Output, in closure: @escaping @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> @Sendable (repeat each Arg) async throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func onMainActor<each Arg>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Swift.Void) -> @_Concurrency.MainActor @Sendable (repeat each Arg) -> Swift.Void {
+		onMainActor(orReturn: (), in: closure)
+	}
+  @inlinable public func onMainActor<each Arg>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Swift.Void) -> @_Concurrency.MainActor @Sendable (repeat each Arg) throws -> Swift.Void {
+		onMainActor(orReturn: (), in: closure)
+	}
+  @inlinable public func onMainActor<each Arg>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Swift.Void) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async -> Swift.Void {
+		onMainActor(orReturn: (), in: closure)
+	}
+  @inlinable public func onMainActor<each Arg>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Swift.Void) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async throws -> Swift.Void {
+		onMainActor(orReturn: (), in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output?) -> @_Concurrency.MainActor @Sendable (repeat each Arg) -> Output? {
+		onMainActor(orReturn: nil, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output?) -> @_Concurrency.MainActor @Sendable (repeat each Arg) throws -> Output? {
+		onMainActor(orReturn: nil, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output?) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async -> Output? {
+		onMainActor(orReturn: nil, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output?) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async throws -> Output? {
+		onMainActor(orReturn: nil, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @_Concurrency.MainActor @Sendable () -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) -> Output {
+		onMainActor(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @_Concurrency.MainActor @Sendable () -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) throws -> Output {
+		onMainActor(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @_Concurrency.MainActor @Sendable () -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async -> Output {
+		onMainActor(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @autoclosure @escaping @_Concurrency.MainActor @Sendable () -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async throws -> Output {
+		onMainActor(orReturn: defaultValue, in: closure)
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @escaping @_Concurrency.MainActor @Sendable () -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return defaultValue() }
+			return closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @escaping @_Concurrency.MainActor @Sendable () throws -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) throws -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try defaultValue() }
+			return try closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @escaping @_Concurrency.MainActor @Sendable () async -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return await defaultValue() }
+			return await closure(object, repeat each arg)
+		}
+	}
+  @inlinable public func onMainActor<each Arg, Output>(orReturn defaultValue: @escaping @_Concurrency.MainActor @Sendable () async throws -> Output, in closure: @escaping @_Concurrency.MainActor @Sendable (Self.__CaptureRefObject, repeat each Arg) async throws -> Output) -> @_Concurrency.MainActor @Sendable (repeat each Arg) async throws -> Output {
+		return { [self] (arg: repeat each Arg) in
+			guard let object else { return try await defaultValue() }
+			return try await closure(object, repeat each arg)
+		}
+	}
+}
+@propertyWrapper public struct Captured<Object> : Capture._OptionalReferenceContainerProtocol where Object : AnyObject {
+  public typealias RootContainer = Capture.Captured<Object>
+  public typealias __CaptureRefObject = Object
+  public var wrappedValue: Object? {
+    get
+    set
+    _modify
+  }
+  public var object: Object? {
+    get
+    set
+    _modify
+  }
+  @_disfavoredOverload public init(wrappedValue: Object? = nil, strong: Swift.Bool = false)
+  public init(_ object: Object, as strategy: Capture.ObjectCaptureStrategy = .weak)
+  public init(unsafe object: Object?, as strategy: Capture.ObjectCaptureStrategy = .weak)
+  public init(safe object: Object?, as strategy: Capture.ObjectCaptureStrategy = .weak)
+  @inlinable public init(wrappedValue: Object, _ strategy: Capture.ObjectCaptureStrategy = .weak) {
+		self.init(wrappedValue, as: strategy)
+	}
+}
+extension Capture.Captured : @unchecked Swift.Sendable where Object : Swift.Sendable {
+}
+public protocol __OptionalReferenceContainerProtocol<__CaptureRefObject> {
+  associatedtype __CaptureRefObject : AnyObject
+}
+public protocol _OptionalReferenceContainerProtocol<__CaptureRefObject> : Capture.__OptionalReferenceContainerProtocol {
+}
+@propertyWrapper public struct Strong<Object> : Capture._OptionalReferenceContainerProtocol where Object : AnyObject {
+  public typealias RootContainer = Capture.Strong<Object>
+  public typealias __CaptureRefObject = Object
+  public var wrappedValue: Object? {
+    get
+    set
+    _modify
+  }
+  public var object: Object? {
+    get
+    set
+    _modify
+  }
+  @inlinable public var projectedValue: Capture.Strong<Object> {
+    get { self }
+    set { self = newValue }
+    _modify { yield &self }
+  }
+  public init(wrappedValue: Object? = nil)
+  @inlinable public init(_ object: Object?) {
+		self.init(wrappedValue: object)
+	}
+}
+extension Capture.Strong : Swift.Sendable where Object : Swift.Sendable {
+}
+@propertyWrapper public struct Unowned<Object> : Capture._OptionalReferenceContainerProtocol where Object : AnyObject {
+  public typealias RootContainer = Capture.Unowned<Object>
+  public typealias __CaptureRefObject = Object
+  unowned public var wrappedValue: Object {
+    get
+    set
+    _modify
+  }
+  unowned public var object: Object {
+    get
+    set
+    _modify
+  }
+  @inlinable public var projectedValue: Capture.Unowned<Object> {
+    get { self }
+    set { self = newValue }
+    _modify { yield &self }
+  }
+  public init(wrappedValue: Object)
+  @inlinable public init(_ object: Object) {
+		self.init(wrappedValue: object)
+	}
+}
+extension Capture.Unowned : Swift.Sendable where Object : Swift.Sendable {
+}
+@propertyWrapper public struct Weak<Object> : Capture._OptionalReferenceContainerProtocol where Object : AnyObject {
+  public typealias RootContainer = Capture.Weak<Object>
+  public typealias __CaptureRefObject = Object
+  weak public var wrappedValue: Object? {
+    get
+    set
+    _modify
+  }
+  weak public var object: Object? {
+    get
+    set
+    _modify
+  }
+  @inlinable public var projectedValue: Capture.Weak<Object> {
+    get { self }
+    set { self = newValue }
+    _modify { yield &self }
+  }
+  @inlinable public init(_ object: Object?) {
+		self.init(wrappedValue: object)
+	}
+  public init(wrappedValue: Object? = nil)
+}
+extension Capture.Weak : Swift.Sendable where Object : Swift.Sendable {
+}
+@available(*, deprecated, renamed: "CapturableObjectProtocol", message: "Use CapturableObjectProtocol protocol instead")
+public typealias Weakifiable = Capture.CapturableObjectProtocol
+extension Capture.ObjectCaptureStrategy : Swift.Equatable {}
+extension Capture.ObjectCaptureStrategy : Swift.Hashable {}
